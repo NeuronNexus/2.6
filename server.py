@@ -1,21 +1,19 @@
-from mcp.server.fastmcp import FastMCP
-from starlette.requests import Request
+from mcp.server.fastmcp import FastMCP, Context
 import hashlib
 
-EMAIL = "23f2004186@ds.study.iitm.ac.in".strip().lower()
+EMAIL = "23f2004186@ds.study.iitm.ac.in"
 
-mcp = FastMCP("exam-server")
+mcp = FastMCP("exam")
 
 
 @mcp.tool()
-async def solve_challenge(request: Request) -> str:
+async def solve_challenge(ctx: Context) -> str:
+    request = ctx.request
     challenge = request.headers.get("X-Exam-Challenge", "")
 
-    digest = hashlib.sha256(
+    return hashlib.sha256(
         f"{challenge}:{EMAIL}".encode()
-    ).hexdigest()
-
-    return digest[:16]
+    ).hexdigest()[:16]
 
 
 app = mcp.streamable_http_app()
